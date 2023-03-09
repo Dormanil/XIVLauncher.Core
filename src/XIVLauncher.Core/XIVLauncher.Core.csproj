@@ -67,6 +67,7 @@
     <PackageReference Include="goaaats.Veldrid.ImageSharp" Version="4.9.0-beta1-g70f642e82e" />
     <PackageReference Include="goaaats.Veldrid.SDL2" Version="4.9.0-beta1-g70f642e82e" />
     <PackageReference Include="goaaats.Veldrid.StartupUtilities" Version="4.9.0-beta1-g70f642e82e" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
 
   <ItemGroup>

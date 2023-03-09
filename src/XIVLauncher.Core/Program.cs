@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.CommandLine;
 using CheapLoc;
 using Config.Net;
 using ImGuiNET;
@@ -103,7 +104,7 @@ class Program
         Config.PatchAcquisitionMethod ??= AcquisitionMethod.Aria;
 
         Config.DalamudEnabled ??= true;
-        Config.DalamudLoadMethod = !OperatingSystem.IsWindows() ? DalamudLoadMethod.DllInject : DalamudLoadMethod.EntryPoint;
+        Config.DalamudLoadMethod ??= DalamudLoadMethod.DllInject;
 
         Config.GlobalScale ??= 1.0f;
 
@@ -121,6 +122,22 @@ class Program
     public const uint STEAM_APP_ID_FT = 312060;
 
     private static void Main(string[] args)
+    {
+        var dalamudRunnerOverrideOption = new Option<FileInfo?>(name: "--dalamud-runner-override",
+            description: "Path to the Dalamud Injector file to override the dalamud runner with.");
+
+        var rootCommand = new RootCommand("Crossplatform Launcher for FFXIV");
+        rootCommand.AddOption(dalamudRunnerOverrideOption);
+        
+        rootCommand.SetHandler(file =>
+        {
+            StartApp(file, args);
+        }, dalamudRunnerOverrideOption);
+
+        rootCommand.Invoke(args);
+    }
+
+    private static void StartApp(FileInfo? dalamudRunnerOverride, string[] args)
     {
         storage = new Storage(APP_NAME);
         SetupLogging(args);
@@ -167,7 +184,8 @@ class Program
         DalamudLoadInfo = new DalamudOverlayInfoProxy();
         DalamudUpdater = new DalamudUpdater(storage.GetFolder("dalamud"), storage.GetFolder("runtime"), storage.GetFolder("dalamudAssets"), storage.Root, null, null)
         {
-            Overlay = DalamudLoadInfo
+            Overlay = DalamudLoadInfo,
+            RunnerOverride = dalamudRunnerOverride
         };
         DalamudUpdater.Run();
 
